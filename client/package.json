@@ -1,5 +1,5 @@
 {
-  "name": "role-splitter",
+  "name": "role-splitter-front",
   "version": "0.0.0",
   "main": "dist/index.bundle.js",
   "types": "dist/index.d.ts",
