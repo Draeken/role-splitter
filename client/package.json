@@ -1,0 +1,40 @@
+{
+  "name": "role-splitter",
+  "version": "0.0.0",
+  "main": "dist/index.bundle.js",
+  "types": "dist/index.d.ts",
+  "scripts": {
+    "clean": "del-cli .cache",
+    "start": "npm run clean && parcel src/index.html"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/Draeken/role-splitter.git"
+  },
+  "private": true,
+  "license": "MIT",
+  "dependencies": {
+    "@autoschedule/react-elements": "^1.0.0",
+    "@emotion/core": "^10.0.10",
+    "@types/react": "^16.8.19",
+    "@types/react-dom": "^16.8.4",
+    "babel-core": "^6.26.3",
+    "babel-plugin-syntax-jsx": "^6.18.0",
+    "babel-preset-env": "^1.7.0",
+    "babel-preset-react": "^6.24.1",
+    "del-cli": "^2.0.0",
+    "emotion": "^10.0.9",
+    "emotion-theming": "^10.0.10",
+    "parcel-bundler": "^1.12.3",
+    "prop-types": "^15.7.2",
+    "react": "^16.8.6",
+    "react-dom": "^16.8.6",
+    "rxjs": "^6.5.2",
+    "rxjs-tslint": "^0.1.7",
+    "tslint": "^5.17.0",
+    "tslint-config-prettier": "^1.18.0",
+    "tslint-react": "^4.0.0",
+    "typescript": "^3.5.1",
+    "typescript-styled-plugin": "^0.14.0"
+  }
+}
