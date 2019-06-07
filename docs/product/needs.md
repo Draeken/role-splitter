@@ -19,7 +19,7 @@ People who want an easy time-tracking focused on assigning role to day chunk.
 
 - Split work days and week-end in multiple chunks
 - Define roles
-- Define the chart goal
+- Define the chart goal - maybe with an option to set a minimal amount of hours
 - track chunk
 
 # Futher needs
