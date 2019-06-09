@@ -28,3 +28,6 @@ What happens to the target when adding/removing a role ? Adding then removing sh
 
 User wants to monitor to adjust his role assignation: decrease some overused and increase the underused.
 Use a bar chart to highlight roles to decrease and roles to increase
+Use a edit button to toogle view from bar char use relative to goal to bar chart goal setting. Add a button to add a role.
+Setting goal : use a default role with all 100% of usage - communicating vessels principle.
+Add a way to change the time interval.
