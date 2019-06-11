@@ -25,6 +25,7 @@
     "del-cli": "^2.0.0",
     "emotion": "^10.0.9",
     "emotion-theming": "^10.0.10",
+    "intervals-fn": "^3.0.3",
     "parcel-bundler": "^1.12.3",
     "prop-types": "^15.7.2",
     "react": "^16.8.6",
