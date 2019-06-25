@@ -25,5 +25,30 @@ People who want an easy time-tracking focused on assigning role to day chunk.
 # Futher needs
 - multiple devices
 - have suggestion of how to spend time
-- define roles restriction on specific chunks - eg: no mapping or music on work day, for better suggestion
+  - define roles restriction on specific chunks - eg: no mapping or music on work day, for better suggestion
 - on mobile app, could use notifications & quick response - a way to track chunks without opening the app
+
+# Properties
+
+To compare what roles are actualy used to what should be used, we need:
+- know the amount of time used on each role
+- know when this amount of time was used (allow comparison in a specific date range)
+
+solutions:
+track time by declaring activities, with accurate boundaries -> toggle
+pros:
+- accurante
+- flexible
+cons:
+- cumbersome to declare accurante boundaries everytime
+
+track time by declaring role on chunk
+pros:
+- give an idea on how to cut your day
+- declare role tracking with ease
+cons:
+- cumbersome to edit chunk cutting (may use different template to remedy that)
+
+Chunks properties:
+- two chunks can't overlaps
+- one chunk can only be before or after another chunk

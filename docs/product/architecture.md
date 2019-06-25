@@ -1,5 +1,5 @@
 When opening the app, user wants :
-- track chunk
+- track chunk / edit chunk
 - check what is underused
 - edit roles
 
