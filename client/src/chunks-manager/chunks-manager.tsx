@@ -22,14 +22,12 @@ export const ChunkManager: React.FunctionComponent<
   React.useEffect(() => {
     const localStorageKey = 'chunks';
     const localChunksRaw = localStorage.getItem(localStorageKey);
-    let localChunks = [];
-    try {
-      localChunks = JSON.parse(localChunksRaw || '[]');
-    } catch (e) {
-      localStorage.removeItem(localStorageKey);
-      console.error('Local chunks corrupted', localChunksRaw, e);
+    if (localChunksRaw) {
+      const localChunks = retrieveLocalChunks(localChunksRaw, localStorageKey);
+      updateChunks(localChunks);
+    } else {
+      updateChunks(defaultChunks);
     }
-    updateChunks(localChunks);
     return () => {
       localStorage.setItem(localStorageKey, JSON.stringify(chunks));
     }
@@ -43,3 +41,20 @@ export const ChunkManager: React.FunctionComponent<
       </div>
   );
 };
+
+const defaultChunks = [{
+  start: 0,
+  end: 1,
+  role: 'Unassigned'
+}];
+
+const retrieveLocalChunks = (localChunksRaw: string, localStorageKey: string) => {
+  let localChunks = [];
+  try {
+    localChunks = JSON.parse(localChunksRaw || '[]');
+  } catch (e) {
+    localStorage.removeItem(localStorageKey);
+    console.error('Local chunks corrupted', localChunksRaw, e);
+  }
+  return localChunks;
+}

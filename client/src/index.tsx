@@ -59,7 +59,7 @@ const breakKeyToNewTheme = (_: any, keys: { [key: string]: boolean }): any => {
   }
   return {
     layout: { gutter: '24px', margin: '24px' },
-    dialog: { fullscreen: true },
+    dialog: { fullscreen: false },
   };
 };
 
