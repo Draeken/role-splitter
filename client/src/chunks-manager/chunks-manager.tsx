@@ -23,38 +23,40 @@ export const ChunkManager: React.FunctionComponent<
     const localStorageKey = 'chunks';
     const localChunksRaw = localStorage.getItem(localStorageKey);
     if (localChunksRaw) {
-      const localChunks = retrieveLocalChunks(localChunksRaw, localStorageKey);
+      const localChunks = parseLocalChunks(localChunksRaw, localStorageKey);
       updateChunks(localChunks);
     } else {
       updateChunks(defaultChunks);
     }
     return () => {
       localStorage.setItem(localStorageKey, JSON.stringify(chunks));
-    }
+    };
   }, []);
 
   return (
-      <div {...hostProps}>
-        {chunks.map(chunk => (
-          <div key={chunk.start}>{chunk.role}</div>
-        ))}
-      </div>
+    <div {...hostProps}>
+      {chunks.map(chunk => (
+        <div key={chunk.start}>{chunk.role}</div>
+      ))}
+    </div>
   );
 };
 
-const defaultChunks = [{
-  start: 0,
-  end: 1,
-  role: 'Unassigned'
-}];
+const defaultChunks = [
+  {
+    start: 0,
+    end: 1,
+    role: 'Unassigned',
+  },
+];
 
-const retrieveLocalChunks = (localChunksRaw: string, localStorageKey: string) => {
+const parseLocalChunks = (localChunksRaw: string, localStorageKey: string) => {
   let localChunks = [];
   try {
-    localChunks = JSON.parse(localChunksRaw || '[]');
+    localChunks = JSON.parse(localChunksRaw || '[]');
   } catch (e) {
     localStorage.removeItem(localStorageKey);
     console.error('Local chunks corrupted', localChunksRaw, e);
   }
   return localChunks;
-}
+};

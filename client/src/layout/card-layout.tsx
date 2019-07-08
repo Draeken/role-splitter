@@ -46,7 +46,6 @@ class CardLayoutImpl extends React.PureComponent<CardLayoutProps> {
       themeToClassname(theme),
       CardProps({ customTheme: theme })
     );
-    console.log('rended')
     return (
       <div {...hostClassname}>
         <div {...innerProps}>{children}</div>
