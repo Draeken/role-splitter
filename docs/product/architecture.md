@@ -11,10 +11,12 @@ Mobile: display current day. Swip to change date
 There is no need to display chunk on a timeline, only to be chronologically ordered.
 -> no need to split/join chunks, just create/delete
 
-How to edit default splitting? To avoid inadvertency edit current split configuration, it could be locked.
-Unlock split config via an edit button. This shouldn't be a reccurent action.
-When unlocked, user can split or join a chunk with a double click [desktop] / long press [mobile]. User can move chunk border (one border for two chunks). Then user can save it, discard it, or save it as default for the next weeks
-If user move the limit of a chunk to hour 00:00 / 23:59, how does it go through the previous / next day ? by moving the chunk instead of the limit (for chunk is between two days).
+Enable Edit Mode
+
+- add chunk: between chunks: add button to place a new chunk at this position.
+- edit chunk: editable start/end hours for chunks + button to delete chunk
+
+Then user can save it, discard it, or save it as default for the next weeks
 
 How to assign role to chunks? Two ways:
 1. tap on chunk, it opens a popup where you can choose the appropriate role. Tap on the role to assign it to the chunk

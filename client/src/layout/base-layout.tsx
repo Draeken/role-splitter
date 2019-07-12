@@ -45,6 +45,8 @@ const themeToClassname = (theme: BaseLayoutTheme) => ({
   `,
 });
 
+export const goldenNumber = 1.618;
+
 export const BaseLayoutProps = () => {
   const theme = defaultTheme(React.useContext(ThemeContext));
   return mergeProps(themeToClassname(theme));
