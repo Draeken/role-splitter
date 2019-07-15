@@ -67,3 +67,10 @@ export const mergeProps = (...props: any[]) => {
   );
   return result;
 };
+
+export const deleteFromList = <T>(finder: (t:T) => boolean) => (list: ReadonlyArray<T>): T[] => {
+  const result = [...list];
+  const i = result.findIndex(finder);
+  result.splice(i, 1);
+  return result;
+}

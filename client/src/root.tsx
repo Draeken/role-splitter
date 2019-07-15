@@ -1,22 +1,27 @@
 import * as React from 'react';
 import { Chunk, ChunkManager } from './chunks-manager/chunks-manager';
 import { BaseLayoutProps } from './layout/base-layout';
-import { mergeProps } from './utils/utils';
+import { deleteFromList, mergeProps } from './utils/utils';
 
 interface AppState {
   chunks: ReadonlyArray<Chunk>;
 }
 
-type actionType = AddChunk | EditChunk;
+type actionType = AddChunk | EditChunk | DeleteChunk;
 
 interface AddChunk {
   type: 'add';
-  payload: Chunk;
+  chunk: Chunk;
 }
 
 interface EditChunk {
   type: 'edit';
-  payload: Chunk;
+  chunk: Chunk;
+}
+
+interface DeleteChunk {
+  type: 'delete';
+  chunkId: string;
 }
 
 interface AppContext {
@@ -56,16 +61,24 @@ const retrieveState = (): AppState => {
   };
 };
 
+const saveState = (state: AppState) => {
+  const localChunksRaw = JSON.stringify(state.chunks);
+  localStorage.setItem(localStorageKey, localChunksRaw);
+};
+
 const reducer = (state: AppState, action: actionType) => {
   switch (action.type) {
     case 'add':
-      return { ...state, chunks: [...state.chunks, action.payload] };
+      return { ...state, chunks: [...state.chunks, action.chunk] };
     case 'edit':
       return {
         ...state,
-        chunks: state.chunks.map(chunk =>
-          chunk.id === action.payload.id ? action.payload : chunk
-        ),
+        chunks: state.chunks.map(chunk => (chunk.id === action.chunk.id ? action.chunk : chunk)),
+      };
+    case 'delete':
+      return {
+        ...state,
+        chunks: deleteFromList<Chunk>(c => c.id === action.chunkId)(state.chunks),
       };
     default:
       return state;
@@ -78,6 +91,9 @@ export const Root = props => {
 
   const [appState, appDispatch] = React.useReducer(reducer, undefined, retrieveState);
   const value = { appState, appDispatch };
+  React.useEffect(() => { // hook before webapp killed?
+    return saveState(appState);
+  }, []);
 
   return (
     <div {...hostProps}>

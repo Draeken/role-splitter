@@ -6,27 +6,27 @@ import { CardProps } from '../layout/card';
 import { mergeProps } from '../utils/utils';
 import { Chunk } from './chunks-manager';
 
-interface ChunkCardProps {
+interface ChunkViewProps {
   chunk: Chunk;
 }
 
 const baseHeight = 100;
 
-const ChunkCardRootClass = {
+const ChunkViewRootClass = {
   className: css`
     width: ${baseHeight * goldenNumber}px;
     height: ${baseHeight}px;
   `,
 };
 
-export const ChunkCard: React.FunctionComponent<
-  ChunkCardProps & React.HTMLAttributes<HTMLDivElement>
+export const ChunkView: React.FunctionComponent<
+  ChunkViewProps & React.HTMLAttributes<HTMLDivElement>
 > = props => {
   const { chunk, ...defaultHostProps } = props;
   const theme = React.useContext(ThemeContext);
   const hostProps = mergeProps(
     CardProps({ customTheme: theme }),
-    ChunkCardRootClass,
+    ChunkViewRootClass,
     defaultHostProps
   );
   return <div {...hostProps}>{chunk.role} | {chunk.start} - {chunk.end}</div>;
