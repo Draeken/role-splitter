@@ -7,7 +7,7 @@ interface AppState {
   chunks: ReadonlyArray<Chunk>;
 }
 
-type actionType = AddChunk | EditChunk | DeleteChunk;
+export type actionType = AddChunk | EditChunk | DeleteChunk;
 
 interface AddChunk {
   type: 'add';
