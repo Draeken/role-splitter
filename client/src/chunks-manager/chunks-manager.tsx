@@ -3,6 +3,7 @@ import { css } from 'emotion';
 import * as React from 'react';
 import { AppContext } from '../root';
 import { mergeProps } from '../utils/utils';
+import { ChunkAdd } from './chunk-add';
 import { ChunkEdit } from './chunk-edit';
 import { ChunkView } from './chunk-view';
 
@@ -36,5 +37,11 @@ export const ChunkManager: React.FunctionComponent<
 
 const viewChunks = (chunks: ReadonlyArray<Chunk>) =>
   chunks.map(chunk => <ChunkView chunk={chunk} key={chunk.start} />);
-const editChunks = (chunks: ReadonlyArray<Chunk>) =>
-  chunks.map(chunk => <ChunkEdit chunk={chunk} key={chunk.start} />);
+const editChunks = (chunks: ReadonlyArray<Chunk>) => (
+  <React.Fragment>
+    {chunks.map(chunk => (
+      <ChunkEdit chunk={chunk} key={chunk.start} />
+    ))}
+    <ChunkAdd />
+  </React.Fragment>
+);
