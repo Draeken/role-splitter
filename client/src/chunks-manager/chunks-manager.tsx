@@ -1,4 +1,4 @@
-import { Button, ButtonEmphaze } from '@autoschedule/react-elements';
+import { Button, ButtonEmphaze, ThemeContext } from '@autoschedule/react-elements';
 import { css } from 'emotion';
 import * as React from 'react';
 import { AppContext } from '../root';
@@ -7,9 +7,12 @@ import { ChunkAdd } from './chunk-add';
 import { ChunkEdit } from './chunk-edit';
 import { ChunkView } from './chunk-view';
 
-const rootClass = {
-  className: css``,
-};
+const rootClass = (theme: any) => ({
+  className: css`
+    background-color: ${theme.palette.surface.main};
+    border-radius: 8px;
+  `,
+});
 
 export interface Chunk {
   start: number;
@@ -22,7 +25,7 @@ export const ChunkManager: React.FunctionComponent<
   React.HTMLAttributes<HTMLDivElement>
 > = props => {
   const { ...defaultHostProps } = props;
-  const hostProps = mergeProps(rootClass, defaultHostProps);
+  const hostProps = mergeProps(rootClass(React.useContext(ThemeContext)), defaultHostProps);
   const { appState } = React.useContext(AppContext);
   const [editMode, setEditMode] = React.useState(false);
   const toggleEditMode = React.useCallback(() => setEditMode(!editMode), [editMode]);

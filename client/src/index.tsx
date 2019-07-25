@@ -9,6 +9,9 @@ const emotionTheme = {
     gutter: '24px',
     margin: '24px',
   },
+  chunksManager: {
+    daysDisplay: 5,
+  },
   dialog: {
     fullscreen: false,
   },
@@ -48,18 +51,21 @@ const emotionTheme = {
 const breakKeyToNewTheme = (_: any, keys: { [key: string]: boolean }): any => {
   if (keys['' + BreakpointsEnum.small2]) {
     return {
+      chunksManager: { daysDisplay: 1 },
       layout: { gutter: '16px', margin: '16px' },
       dialog: { fullscreen: true },
     };
   }
+  const greaterThanSmall2 = {
+    chunksManager: { daysDisplay: 5 },
+    dialog: { fullscreen: false },
+  };
   if (keys['' + BreakpointsEnum.medium1]) {
-    return {
-      dialog: { fullscreen: false },
-    };
+    return { ...greaterThanSmall2 };
   }
   return {
     layout: { gutter: '24px', margin: '24px' },
-    dialog: { fullscreen: false },
+    ...greaterThanSmall2,
   };
 };
 

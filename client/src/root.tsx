@@ -1,6 +1,7 @@
 import * as React from 'react';
-import { Chunk, ChunkManager } from './chunks-manager/chunks-manager';
+import { Chunk } from './chunks-manager/chunks-manager';
 import { BaseLayoutProps } from './layout/base-layout';
+import { TrackNMonitor } from './track-n-monitor';
 import { deleteFromList, mergeProps } from './utils/utils';
 
 interface AppState {
@@ -61,9 +62,10 @@ const retrieveState = (): AppState => {
   };
 };
 
-const saveState = (state: AppState) => {
+const saveState = (state: AppState) => () => {
   const localChunksRaw = JSON.stringify(state.chunks);
   localStorage.setItem(localStorageKey, localChunksRaw);
+  console.log('state saved');
 };
 
 const reducer = (state: AppState, action: actionType) => {
@@ -91,14 +93,15 @@ export const Root = props => {
 
   const [appState, appDispatch] = React.useReducer(reducer, undefined, retrieveState);
   const value = { appState, appDispatch };
-  React.useEffect(() => { // hook before webapp killed?
+  React.useEffect(() => {
+    // hook before webapp killed?
     return saveState(appState);
   }, []);
 
   return (
     <div {...hostProps}>
       <AppContext.Provider value={value}>
-        <ChunkManager />
+        <TrackNMonitor />
       </AppContext.Provider>
     </div>
   );
