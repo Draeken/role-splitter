@@ -1,6 +1,7 @@
 import { Button, ButtonEmphaze, ThemeContext } from '@autoschedule/react-elements';
 import { css } from 'emotion';
 import * as React from 'react';
+import { DateStep, Pagination } from '../elements/pagination';
 import { AppContext } from '../root';
 import { mergeProps } from '../utils/utils';
 import { ChunkAdd } from './chunk-add';
@@ -21,6 +22,15 @@ export interface Chunk {
   id: string;
 }
 
+const displayedPages = 3;
+
+const contentClass = css`
+  display: flex;
+  justify-content: space-evenly;
+`;
+
+const shiftActiveToLast = (page: number) => page - displayedPages + 1;
+
 export const ChunkManager: React.FunctionComponent<
   React.HTMLAttributes<HTMLDivElement>
 > = props => {
@@ -30,16 +40,37 @@ export const ChunkManager: React.FunctionComponent<
   const [editMode, setEditMode] = React.useState(false);
   const toggleEditMode = React.useCallback(() => setEditMode(!editMode), [editMode]);
 
+  const [activePage, setActivePage] = React.useState(0);
+  const stepClickCB = React.useCallback((i: number) => setActivePage(i), []);
+  const stepCB = React.useCallback(
+    (i: number) => <DateStep offset={shiftActiveToLast(i)} onClick={() => stepClickCB(shiftActiveToLast(i))} />,
+    []
+  );
+
   return (
     <div {...hostProps}>
-      {editMode ? editChunks(appState.chunks) : viewChunks(appState.chunks)}
+      <Pagination activePage={activePage} pageDisplayed={displayedPages} stepComponent={stepCB} />
+      <div className={contentClass}>
+        {editMode ? editChunks(appState.chunks) : viewChunks(appState.chunks, activePage)}
+      </div>
       <Button emphaze={ButtonEmphaze.Medium} label={'edit'} onClick={toggleEditMode} />
     </div>
   );
 };
 
-const viewChunks = (chunks: ReadonlyArray<Chunk>) =>
-  chunks.map(chunk => <ChunkView chunk={chunk} key={chunk.start} />);
+const filterForGivenDay = (offset: number) => (chunk: Chunk) => {
+  const today = new Date();
+  today.setDate(shiftActiveToLast(offset));
+  const start = today.setHours(0, 0, 0, 0);
+  const end = start + 3600000 * 24;
+  return start < chunk.start && chunk.start < end;
+}
+
+const viewChunks = (chunks: ReadonlyArray<Chunk>, activePage: number) =>
+  Array(displayedPages)
+    .fill(undefined)
+    .map((_, i) => chunks.filter(filterForGivenDay(activePage + i)).map(chunk => <ChunkView chunk={chunk} key={chunk.start} />));
+
 const editChunks = (chunks: ReadonlyArray<Chunk>) => (
   <React.Fragment>
     {chunks.map(chunk => (
