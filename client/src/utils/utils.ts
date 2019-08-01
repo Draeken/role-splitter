@@ -74,3 +74,15 @@ export const deleteFromList = <T>(finder: (t:T) => boolean) => (list: ReadonlyAr
   result.splice(i, 1);
   return result;
 }
+
+export const partitionList = <T>(finder: (t:T) => boolean) => (list: ReadonlyArray<T>): [T[], T[]] => {
+  const result: [T[], T[]] = [[], []];
+  list.forEach(v => {
+    if (finder(v)) {
+      result[0].push(v);
+      return;
+    }
+    result[1].push(v);
+  });
+  return result;
+}
