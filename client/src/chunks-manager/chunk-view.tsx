@@ -1,4 +1,4 @@
-import { ThemeContext } from '@autoschedule/react-elements';
+import { ThemeContext, Typography } from '@autoschedule/react-elements';
 import { css } from 'emotion';
 import * as React from 'react';
 import { goldenNumber } from '../layout/base-layout';
@@ -19,15 +19,32 @@ const ChunkViewRootClass = {
   `,
 };
 
+const timestampToTime = (timestamp: number) => {
+  const d = new Date(timestamp);
+  return `${d
+    .getHours()
+    .toLocaleString(undefined, { minimumIntegerDigits: 2 })}:${d
+    .getMinutes()
+    .toLocaleString(undefined, { minimumIntegerDigits: 2 })}`;
+};
+
 export const ChunkView: React.FunctionComponent<
   ChunkViewProps & React.HTMLAttributes<HTMLDivElement>
 > = props => {
   const { chunk, ...defaultHostProps } = props;
   const theme = React.useContext(ThemeContext);
+  const start = React.useMemo(() => timestampToTime(chunk.start), [chunk.start]);
+  const end = React.useMemo(() => timestampToTime(chunk.end), [chunk.end]);
   const hostProps = mergeProps(
     CardProps({ customTheme: theme }),
     ChunkViewRootClass,
     defaultHostProps
   );
-  return <div {...hostProps}>{chunk.role} | {chunk.start} - {chunk.end}</div>;
+  return (
+    <div {...hostProps}>
+      <Typography scale={'H6'}>{chunk.role}</Typography>
+      <Typography baselineTop={16} scale={'Overline'}>[{start} - {end}]</Typography>
+      <Typography scale={'Caption'}>{chunk.label}</Typography>
+    </div>
+  );
 };

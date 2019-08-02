@@ -20,6 +20,7 @@ export interface Chunk {
   end: number;
   role: string;
   id: string;
+  label?: string;
 }
 
 const displayedPages = 3;
@@ -29,7 +30,11 @@ const contentClass = css`
   justify-content: space-evenly;
 `;
 
-const chunkPattern = [{ start: 0.1, end: 0.3 }, { start: 0.4, end: 0.5 }, { start: 0.7, end: 0.9 }];
+const chunkPattern = [
+  { start: 0.1, end: 0.3, label: 'Morning - early' },
+  { start: 0.4, end: 0.5, label: 'Before Lunch' },
+  { start: 0.7, end: 0.9, label: 'Afternoon' }
+];
 
 const shiftActiveToLast = (page: number) => page - displayedPages + 1;
 
@@ -81,6 +86,7 @@ const createVirtualChunks = (offset: number): Chunk[] => {
     end: pattern.end * length + start,
     start: pattern.start * length + start,
     role: 'Unassigned',
+    label: pattern.label
   }));
 };
 
