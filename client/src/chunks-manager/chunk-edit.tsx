@@ -1,17 +1,25 @@
-import { Button, ButtonEmphaze, TextInputFocus, ThemeContext } from '@autoschedule/react-elements';
+import {
+  Button,
+  ButtonEmphaze,
+  TextInputFocus,
+  ThemeContext,
+  Typography,
+} from '@autoschedule/react-elements';
 import { css } from 'emotion';
 import * as React from 'react';
 import { goldenNumber } from '../layout/base-layout';
 import { CardProps } from '../layout/card';
 import { actionType, AppContext } from '../root';
 import { mergeProps } from '../utils/utils';
-import { Chunk } from './chunks-manager';
+import { virtualChunkToConcrete, idGenerator } from './chunk-add';
+import { Chunk, VirtualChunk } from './chunks-manager';
 
 interface ChunkEditProps {
-  chunk: Chunk;
+  chunk: Chunk | VirtualChunk;
+  siblingChunks: ReadonlyArray<VirtualChunk>;
 }
 
-const baseHeight = 100;
+const baseHeight = 142;
 
 const ChunkEditRootClass = {
   className: css`
@@ -23,10 +31,10 @@ const ChunkEditRootClass = {
 export const ChunkEdit: React.FunctionComponent<
   ChunkEditProps & React.HTMLAttributes<HTMLDivElement>
 > = props => {
-  const { chunk, ...defaultHostProps } = props;
+  const { chunk, siblingChunks, ...defaultHostProps } = props;
   const theme = React.useContext(ThemeContext);
   const { appDispatch } = React.useContext(AppContext);
-  const deleteChunk = React.useCallback(() => appDispatch({ type: 'delete', chunkId: chunk.id }), [
+  const deleteChunk = React.useCallback(deleteCallback(appDispatch, chunk, siblingChunks), [
     chunk.id,
   ]);
   const hostProps = mergeProps(
@@ -34,26 +42,64 @@ export const ChunkEdit: React.FunctionComponent<
     ChunkEditRootClass,
     defaultHostProps
   );
-  const updateStart = React.useCallback(callbackBuilder(appDispatch, chunk, 'start'), [chunk]);
-  const updateEnd = React.useCallback(callbackBuilder(appDispatch, chunk, 'end'), [chunk]);
+  const updateStart = React.useCallback(
+    callbackBuilder(appDispatch, chunk, 'start', siblingChunks),
+    [chunk]
+  );
+  const updateEnd = React.useCallback(callbackBuilder(appDispatch, chunk, 'end', siblingChunks), [
+    chunk,
+  ]);
   return (
     <div {...hostProps}>
-      {chunk.role} |
+      <Typography scale={'Caption'}>{chunk.role}</Typography>
       <TextInputFocus label={'start'} value={'' + chunk.start} onNewVal={updateStart} />
-      -
       <TextInputFocus label={'end'} value={'' + chunk.end} onNewVal={updateEnd} />
       <Button emphaze={ButtonEmphaze.Low} label={'delete'} onClick={deleteChunk} />
     </div>
   );
 };
 
+const deleteCallback = (
+  appDispatch: React.Dispatch<actionType>,
+  chunk: Chunk | VirtualChunk,
+  siblingChunks: ReadonlyArray<VirtualChunk>
+) => () => {
+  if (chunk.id === undefined) {
+    appDispatch({
+      type: 'add',
+      chunk: [...siblingChunks.map(virtualChunkToConcrete)],
+    });
+    return;
+  }
+  appDispatch({ type: 'delete', chunkId: chunk.id });
+};
+
 const callbackBuilder = (
   appDispatch: React.Dispatch<actionType>,
-  chunk: Chunk,
-  prop: keyof Chunk
+  chunk: Chunk | VirtualChunk,
+  prop: keyof Chunk,
+  siblingChunks: ReadonlyArray<VirtualChunk>
 ) => (val: string) => {
   if (chunk[prop] === +val) {
     return;
   }
+  if (chunk.id === undefined) {
+    appDispatch({
+      type: 'add',
+      chunk: [
+        ...siblingChunks.map(virtualChunkToConcrete),
+        { ...chunk, [prop]: +val, id: idGenerator.next().value },
+      ],
+    });
+    return;
+  }
   appDispatch({ type: 'edit', chunk: { ...chunk, [prop]: +val } });
 };
+
+/**
+ * TOFIX:
+ *
+ *  - [x] When deleting virtual chunk, it does nothing
+ *  - [x] When editing virtual chunk, it deletes all next virtual chunks
+ *
+ */

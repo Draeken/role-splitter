@@ -4,10 +4,10 @@ import * as React from 'react';
 import { goldenNumber } from '../layout/base-layout';
 import { CardProps } from '../layout/card';
 import { mergeProps } from '../utils/utils';
-import { Chunk } from './chunks-manager';
+import { Chunk, VirtualChunk } from './chunks-manager';
 
 interface ChunkViewProps {
-  chunk: Chunk;
+  chunk: Chunk | VirtualChunk;
 }
 
 const baseHeight = 100;

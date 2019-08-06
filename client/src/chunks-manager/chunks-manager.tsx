@@ -3,7 +3,7 @@ import { css } from 'emotion';
 import * as React from 'react';
 import { DateStep, Pagination } from '../elements/pagination';
 import { AppContext } from '../root';
-import { mergeProps, partitionList } from '../utils/utils';
+import { deleteFromList, mergeProps, partitionList } from '../utils/utils';
 import { ChunkAdd } from './chunk-add';
 import { ChunkEdit } from './chunk-edit';
 import { ChunkView } from './chunk-view';
@@ -15,12 +15,19 @@ const rootClass = (theme: any) => ({
   `,
 });
 
-export interface Chunk {
+export interface BaseChunk {
   start: number;
   end: number;
   role: string;
-  id: string;
   label?: string;
+}
+
+export interface Chunk extends BaseChunk {
+  id: string;
+}
+
+export interface VirtualChunk extends BaseChunk {
+  id: undefined;
 }
 
 const displayedPages = 3;
@@ -33,7 +40,7 @@ const contentClass = css`
 const chunkPattern = [
   { start: 0.1, end: 0.3, label: 'Morning - early' },
   { start: 0.4, end: 0.5, label: 'Before Lunch' },
-  { start: 0.7, end: 0.9, label: 'Afternoon' }
+  { start: 0.7, end: 0.9, label: 'Afternoon' },
 ];
 
 const shiftActiveToLast = (page: number) => page - displayedPages + 1;
@@ -61,36 +68,42 @@ export const ChunkManager: React.FunctionComponent<
     <div {...hostProps}>
       <Pagination activePage={activePage} pageDisplayed={displayedPages} stepComponent={stepCB} />
       <div className={contentClass}>
-        {editMode ? editChunks(displayedChunks[0]) : viewChunks(displayedChunks)}
+        {editMode ? editChunks(activePage, displayedChunks) : viewChunks(displayedChunks)}
       </div>
       <Button emphaze={ButtonEmphaze.Medium} label={'edit'} onClick={toggleEditMode} />
     </div>
   );
 };
 
-const filterForGivenDay = (offset: number) => (chunk: Chunk) => {
+const offsetToStart = (offset: number): number => {
   const today = new Date();
-  today.setDate(shiftActiveToLast(offset));
-  const start = today.setHours(0, 0, 0, 0);
-  const end = start + 3600000 * 24;
-  return start < chunk.start && chunk.start < end;
+  const date = today.getDate() + shiftActiveToLast(offset);
+  today.setDate(date);
+  return today.setHours(0, 0, 0, 0);
 };
 
-const createVirtualChunks = (offset: number): Chunk[] => {
-  const today = new Date();
-  today.setDate(shiftActiveToLast(offset));
-  const start = today.setHours(0, 0, 0, 0);
+const filterForGivenDay = (offset: number) => (chunk: Chunk) => {
+  const start = offsetToStart(offset);
+  const end = start + 3600000 * 24;
+  return start <= chunk.start && chunk.start < end;
+};
+
+const createVirtualChunks = (offset: number): VirtualChunk[] => {
+  const start = offsetToStart(offset);
   const length = 3600000 * 24;
   return chunkPattern.map(pattern => ({
-    id: 'undefined',
+    id: undefined,
     end: pattern.end * length + start,
     start: pattern.start * length + start,
     role: 'Unassigned',
-    label: pattern.label
+    label: pattern.label,
   }));
 };
 
-const getDisplayedChunks = (chunksArg: ReadonlyArray<Chunk>, activePage: number): Chunk[][] => {
+const getDisplayedChunks = (
+  chunksArg: ReadonlyArray<Chunk>,
+  activePage: number
+): Array<Array<Chunk | VirtualChunk>> => {
   let chunks = [...chunksArg];
   return Array(displayedPages)
     .fill(undefined)
@@ -106,32 +119,32 @@ const getDisplayedChunks = (chunksArg: ReadonlyArray<Chunk>, activePage: number)
     });
 };
 
-const viewChunks = (chunksDays: Chunk[][]) =>
+const viewChunks = (chunksDays: Array<Array<Chunk | VirtualChunk>>) =>
   chunksDays.map(chunks => (
     <div>
       {chunks.map(chunk => (
-        <ChunkView chunk={chunk} key={chunk.start} />
+        <ChunkView chunk={chunk} />
       ))}
     </div>
   ));
 
-const editChunks = (chunks: ReadonlyArray<Chunk>) => (
-  <React.Fragment>
-    {chunks.map(chunk => (
-      <ChunkEdit chunk={chunk} key={chunk.start} />
-    ))}
-    <ChunkAdd />
-  </React.Fragment>
-);
+const computeSiblings = (
+  chunk: Chunk | VirtualChunk,
+  chunks: Array<Chunk | VirtualChunk>
+): VirtualChunk[] => {
+  if (chunk.id !== undefined) {
+    return [];
+  }
+  return deleteFromList(c => c === chunk)(chunks) as VirtualChunk[];
+};
 
-/**
- * TODO:
- *
- * - [x] Display virtual chunks based on a pattern with following attributes:
- *  list of chunks for a day, start/end relative to day instead of absolute timestamp. Refactor chunks to include a "date" and start/end relative to this date ?
- * - [x] if user assign a virtual chunk, display other virtual chunks for this day. If user edit a chunk, display other and adjust to avoid any overlaps.
- *
- * Does virtual chunk has an ID? Editing a chunk in one day could de-virtualize all chunks of the day
- * When editing chunks, one could arrange order by drag-n-dropping in a GKeep fashion
- *
- */
+const editChunks = (offset: number, chunksDays: Array<Array<Chunk | VirtualChunk>>) =>
+  chunksDays.map((chunks, i) => (
+    <div>
+      {chunks.map(chunk => {
+        const sibling = computeSiblings(chunk, chunks);
+        return <ChunkEdit chunk={chunk} siblingChunks={sibling} />;
+      })}
+      <ChunkAdd startOffset={offsetToStart(offset + i)} siblingChunks={chunks} />
+    </div>
+  ));
