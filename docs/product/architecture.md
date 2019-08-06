@@ -18,6 +18,12 @@ Enable Edit Mode
 
 Then user can save it, discard it, or save it as default for the next weeks
 
+[save as default]
+save as ->  - default pattern
+            - existing pattern
+            - new pattern
+save day as default / week as default (will cover 80% of usecase)
+
 How to assign role to chunks? Two ways:
 1. tap on chunk, it opens a popup where you can choose the appropriate role. Tap on the role to assign it to the chunk
 2. Preselect the role, then tap on the chunk to assign the role on it.
