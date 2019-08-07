@@ -57,5 +57,8 @@ export const DateStep: React.FunctionComponent<{ offset: number } & React.HTMLAt
   const hostProps = mergeProps(DateStepClassname(theme), defaultHostProps);
   const date = new Date();
   date.setDate(date.getDate() + offset);
-  return <div {...hostProps}>{date.getDate()}</div>
+  const weekDay = new Intl.DateTimeFormat(undefined, { weekday: 'long' }).format(date);
+  return <div {...hostProps}>
+  {weekDay + ' ' + date.getDate()}
+  </div>
 }

@@ -11,7 +11,7 @@ import { goldenNumber } from '../layout/base-layout';
 import { CardProps } from '../layout/card';
 import { actionType, AppContext } from '../root';
 import { mergeProps } from '../utils/utils';
-import { virtualChunkToConcrete, idGenerator } from './chunk-add';
+import { idGenerator, virtualChunkToConcrete } from './chunk-add';
 import { Chunk, VirtualChunk } from './chunks-manager';
 
 interface ChunkEditProps {
@@ -19,12 +19,12 @@ interface ChunkEditProps {
   siblingChunks: ReadonlyArray<VirtualChunk>;
 }
 
-const baseHeight = 142;
+const baseWidth = 161.8;
 
 const ChunkEditRootClass = {
   className: css`
-    width: ${baseHeight * goldenNumber}px;
-    height: ${baseHeight}px;
+    width: ${baseWidth}px;
+    height: ${baseWidth * goldenNumber / 1.5}px;
   `,
 };
 
