@@ -3,7 +3,7 @@ import { css } from 'emotion';
 import * as React from 'react';
 import { goldenNumber } from '../layout/base-layout';
 import { AppContext } from '../root';
-import { mergeProps } from '../utils/utils';
+import { idGeneratorFn, mergeProps } from '../utils/utils';
 import { BaseChunk, Chunk, VirtualChunk } from './chunks-manager';
 
 interface ChunkAddProps {
@@ -20,14 +20,15 @@ const ChunkAddRootClass = {
   `,
 };
 
-export const idGenerator = idGeneratorFn();
+export const idGenerator = idGeneratorFn('temp');
 
 export const virtualChunkToConcrete = (chunk: BaseChunk): Chunk => ({
   ...chunk,
   id: idGenerator.next().value,
 });
 
-const isVirtualDay = (chunks: ReadonlyArray<Chunk | VirtualChunk>): boolean => chunks.every(c => c.id === undefined);
+const isVirtualDay = (chunks: ReadonlyArray<Chunk | VirtualChunk>): boolean =>
+  chunks.every(c => c.id === undefined);
 
 export const ChunkAdd: React.FunctionComponent<
   ChunkAddProps & React.HTMLAttributes<HTMLDivElement>
@@ -52,10 +53,3 @@ export const ChunkAdd: React.FunctionComponent<
   }, [startOffset, siblingChunks]);
   return <Button emphaze={ButtonEmphaze.Medium} label={'add'} {...hostProps} onClick={onClick} />;
 };
-
-function* idGeneratorFn() {
-  let id = 0;
-  while (true) {
-    yield `temp-${id++}`;
-  }
-}

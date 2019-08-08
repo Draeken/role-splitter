@@ -86,3 +86,10 @@ export const partitionList = <T>(finder: (t:T) => boolean) => (list: ReadonlyArr
   });
   return result;
 }
+
+export function* idGeneratorFn(prefix: string) {
+  let id = 0;
+  while (true) {
+    yield `${prefix}-${id++}`;
+  }
+}

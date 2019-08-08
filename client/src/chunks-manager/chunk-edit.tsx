@@ -1,12 +1,7 @@
-import {
-  Button,
-  ButtonEmphaze,
-  TextInputFocus,
-  ThemeContext,
-  Typography,
-} from '@autoschedule/react-elements';
+import { Button, ButtonEmphaze, ThemeContext, Typography } from '@autoschedule/react-elements';
 import { css } from 'emotion';
 import * as React from 'react';
+import { TimeInputFocus } from '../elements/time-input';
 import { goldenNumber } from '../layout/base-layout';
 import { CardProps } from '../layout/card';
 import { actionType, AppContext } from '../root';
@@ -24,7 +19,7 @@ const baseWidth = 161.8;
 const ChunkEditRootClass = {
   className: css`
     width: ${baseWidth}px;
-    height: ${baseWidth * goldenNumber / 1.5}px;
+    height: ${100}px;
   `,
 };
 
@@ -52,8 +47,8 @@ export const ChunkEdit: React.FunctionComponent<
   return (
     <div {...hostProps}>
       <Typography scale={'Caption'}>{chunk.role}</Typography>
-      <TextInputFocus label={'start'} value={'' + chunk.start} onNewVal={updateStart} />
-      <TextInputFocus label={'end'} value={'' + chunk.end} onNewVal={updateEnd} />
+      <TimeInputFocus label={'start'} value={chunk.start} onNewVal={updateStart} />
+      <TimeInputFocus label={'end'} value={chunk.end} onNewVal={updateEnd} />
       <Button emphaze={ButtonEmphaze.Low} label={'delete'} onClick={deleteChunk} />
     </div>
   );
@@ -79,7 +74,7 @@ const callbackBuilder = (
   chunk: Chunk | VirtualChunk,
   prop: keyof Chunk,
   siblingChunks: ReadonlyArray<VirtualChunk>
-) => (val: string) => {
+) => (val: number) => {
   if (chunk[prop] === +val) {
     return;
   }
@@ -88,12 +83,12 @@ const callbackBuilder = (
       type: 'add',
       chunk: [
         ...siblingChunks.map(virtualChunkToConcrete),
-        { ...chunk, [prop]: +val, id: idGenerator.next().value },
+        { ...chunk, [prop]: val, id: idGenerator.next().value },
       ],
     });
     return;
   }
-  appDispatch({ type: 'edit', chunk: { ...chunk, [prop]: +val } });
+  appDispatch({ type: 'edit', chunk: { ...chunk, [prop]: val } });
 };
 
 /**
