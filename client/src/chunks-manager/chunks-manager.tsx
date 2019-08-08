@@ -113,7 +113,7 @@ const getDisplayedChunks = (
       );
       chunks = filteredChunks;
       if (chunksForPage.length) {
-        return chunksForPage;
+        return chunksForPage.sort((a, b) => a.start - b.start);
       }
       return createVirtualChunks(activePage + i);
     });
