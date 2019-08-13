@@ -40,7 +40,7 @@ export const ChunkAdd: React.FunctionComponent<
     const siblings = isVirtualDay(siblingChunks) ? siblingChunks.map(virtualChunkToConcrete) : [];
     appDispatch({
       type: 'add',
-      chunk: [
+      chunks: [
         ...siblings,
         {
           start: startOffset,

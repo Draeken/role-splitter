@@ -2,11 +2,10 @@ import { Button, ButtonEmphaze, ThemeContext, Typography } from '@autoschedule/r
 import { css } from 'emotion';
 import * as React from 'react';
 import { TimeInputFocus } from '../elements/time-input';
-import { goldenNumber } from '../layout/base-layout';
 import { CardProps } from '../layout/card';
 import { actionType, AppContext } from '../root';
 import { mergeProps } from '../utils/utils';
-import { idGenerator, virtualChunkToConcrete } from './chunk-add';
+import { virtualChunkToConcrete } from './chunk-add';
 import { Chunk, VirtualChunk } from './chunks-manager';
 
 interface ChunkEditProps {
@@ -62,7 +61,7 @@ const deleteCallback = (
   if (chunk.id === undefined) {
     appDispatch({
       type: 'add',
-      chunk: [...siblingChunks.map(virtualChunkToConcrete)],
+      chunks: [...siblingChunks.map(virtualChunkToConcrete)],
     });
     return;
   }
@@ -81,9 +80,9 @@ const callbackBuilder = (
   if (chunk.id === undefined) {
     appDispatch({
       type: 'add',
-      chunk: [
+      chunks: [
         ...siblingChunks.map(virtualChunkToConcrete),
-        { ...chunk, [prop]: val, id: idGenerator.next().value },
+        { ...virtualChunkToConcrete(chunk), [prop]: val },
       ],
     });
     return;
@@ -94,7 +93,7 @@ const callbackBuilder = (
 /**
  * TOFIX:
  *
- *  - [ ] Change the textInput by a time (hour/minute) input
+ *  - [x] Change the textInput by a time (hour/minute) input
  *  - [x] When deleting virtual chunk, it does nothing
  *  - [x] When editing virtual chunk, it deletes all next virtual chunks
  *

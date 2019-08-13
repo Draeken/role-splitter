@@ -12,7 +12,7 @@ export type actionType = AddChunks | EditChunk | DeleteChunk;
 
 interface AddChunks {
   type: 'add';
-  chunk: ReadonlyArray<Chunk>;
+  chunks: ReadonlyArray<Chunk>;
 }
 
 interface EditChunk {
@@ -71,7 +71,7 @@ const saveState = (state: AppState) => () => {
 const reducer = (state: AppState, action: actionType) => {
   switch (action.type) {
     case 'add':
-      return { ...state, chunks: [...state.chunks, ...action.chunk] };
+      return { ...state, chunks: [...state.chunks, ...action.chunks] };
     case 'edit':
       return {
         ...state,
