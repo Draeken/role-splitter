@@ -1,7 +1,8 @@
-import { Modal, TextInput } from '@autoschedule/react-elements';
+import { Modal, TextInput, ThemeContext } from '@autoschedule/react-elements';
 import * as React from 'react';
 import { CardProps } from '../layout/card';
 import { mergeProps } from '../utils/utils';
+import { css } from 'emotion';
 
 export interface DropdownMenuProps {
   label: string;
@@ -15,6 +16,7 @@ export const DropdownMenu: React.FunctionComponent<
 > = props => {
   const { onNewVal, values, ...defaultHostProps } = props;
   const [displayDropdown, setDisplayDropdown] = React.useState(false);
+  const inputRef = React.useRef(null);
   const inputProps = mergeProps(
     {
       onNewVal: () => {},
@@ -22,8 +24,12 @@ export const DropdownMenu: React.FunctionComponent<
     },
     defaultHostProps
   );
+  const pos =
+    inputRef.current === null
+      ? { x: 100, y: 100 }
+      : { x: (inputRef.current as any).offsetLeft, y: (inputRef.current as any).offsetTop + 60 };
   const menuProps = mergeProps({
-    position: { x: 100, y: 100 },
+    position: pos,
     items: values.map(obj => (
       <p onClick={() => onNewVal(obj.key)}>
         {obj.key} - {obj.value}
@@ -32,7 +38,7 @@ export const DropdownMenu: React.FunctionComponent<
   });
   return (
     <React.Fragment>
-      <TextInput {...inputProps} />
+      <TextInput {...inputProps} ref={inputRef} />
       {displayDropdown && <Menu {...menuProps} />}
     </React.Fragment>
   );
@@ -43,11 +49,20 @@ export interface MenuProps {
   items: any[];
 }
 
+const menuClass = (position: {x: number, y: number}) => ({
+  className: css`
+    position: absolute;
+    top: ${position.y}px;
+    left: ${position.x}px;
+  `
+});
+
 export const Menu: React.FunctionComponent<
   MenuProps & React.HTMLAttributes<HTMLDivElement>
 > = props => {
   const { position, items, ...defaultHostProps } = props;
-  const hostProps = mergeProps(CardProps, defaultHostProps);
+  const theme = React.useContext(ThemeContext);
+  const hostProps = mergeProps(CardProps({ customTheme: theme }), menuClass(position), defaultHostProps);
   return (
     <Modal>
       <div {...hostProps}>{items}</div>
