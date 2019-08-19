@@ -1,8 +1,8 @@
 import { Modal, TextInput, ThemeContext } from '@autoschedule/react-elements';
+import { css } from 'emotion';
 import * as React from 'react';
 import { CardProps } from '../layout/card';
 import { mergeProps } from '../utils/utils';
-import { css } from 'emotion';
 
 export interface DropdownMenuProps {
   label: string;
@@ -49,12 +49,12 @@ export interface MenuProps {
   items: any[];
 }
 
-const menuClass = (position: {x: number, y: number}) => ({
+const menuClass = (position: { x: number; y: number }) => ({
   className: css`
     position: absolute;
     top: ${position.y}px;
     left: ${position.x}px;
-  `
+  `,
 });
 
 export const Menu: React.FunctionComponent<
@@ -62,7 +62,11 @@ export const Menu: React.FunctionComponent<
 > = props => {
   const { position, items, ...defaultHostProps } = props;
   const theme = React.useContext(ThemeContext);
-  const hostProps = mergeProps(CardProps({ customTheme: theme }), menuClass(position), defaultHostProps);
+  const hostProps = mergeProps(
+    CardProps({ customTheme: theme }),
+    menuClass(position),
+    defaultHostProps
+  );
   return (
     <Modal>
       <div {...hostProps}>{items}</div>

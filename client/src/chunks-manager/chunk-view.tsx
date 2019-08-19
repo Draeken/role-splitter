@@ -11,6 +11,7 @@ import { Chunk, VirtualChunk } from './chunks-manager';
 
 interface ChunkViewProps {
   chunk: Chunk | VirtualChunk;
+  siblingChunks: ReadonlyArray<VirtualChunk>;
 }
 
 const baseHeight = 100;
@@ -34,7 +35,7 @@ const timestampToTime = (timestamp: number) => {
 export const ChunkView: React.FunctionComponent<
   ChunkViewProps & React.HTMLAttributes<HTMLDivElement>
 > = props => {
-  const { chunk, ...defaultHostProps } = props;
+  const { chunk, siblingChunks, ...defaultHostProps } = props;
   const theme = React.useContext(ThemeContext);
   const { appDispatch } = React.useContext(AppContext);
   const start = React.useMemo(() => timestampToTime(chunk.start), [chunk.start]);
@@ -50,7 +51,13 @@ export const ChunkView: React.FunctionComponent<
     values: [{ key: 'undefined', value: 'UNDEFINED' }, { key: 'env', value: 'Environment' }],
     onNewVal: key => {
       if (chunk.id === undefined) {
-        appDispatch({ type: 'add', chunks: [{ ...virtualChunkToConcrete(chunk), role: key }] });
+        appDispatch({
+          type: 'add',
+          chunks: [
+            ...siblingChunks.map(virtualChunkToConcrete),
+            { ...virtualChunkToConcrete(chunk), role: key },
+          ],
+        });
         return;
       }
       appDispatch({ type: 'edit', chunk: { ...chunk, role: key } });

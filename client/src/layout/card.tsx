@@ -13,14 +13,14 @@ export interface CardTheme {
 
 const defaultTheme = pipe(
   (theme: any) =>
-    merge({ palette: { surface: { main: '#FFF', on: '#00000099' } } } as PaletteTheme, theme),
+    merge({ palette: { surface: { main: '#FFF', on: '#00000099', highEmphase: 'DD' } } } as PaletteTheme, theme),
   (theme: any) =>
     merge(
       {
         card: {
           elevation: 1,
           backgroundColor: theme.palette.surface.main,
-          color: theme.palette.surface.on,
+          color: theme.palette.surface.on + theme.palette.surface.mediumEmphase,
           shape: css`
             border-radius: 4px;
           `,

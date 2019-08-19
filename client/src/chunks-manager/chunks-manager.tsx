@@ -122,9 +122,10 @@ const getDisplayedChunks = (
 const viewChunks = (chunksDays: Array<Array<Chunk | VirtualChunk>>) =>
   chunksDays.map(chunks => (
     <div>
-      {chunks.map(chunk => (
-        <ChunkView chunk={chunk} />
-      ))}
+      {chunks.map(chunk => {
+        const sibling = computeSiblings(chunk, chunks);
+        return <ChunkView chunk={chunk} siblingChunks={sibling} />;
+      })}
     </div>
   ));
 
