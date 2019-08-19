@@ -2,7 +2,7 @@ import { Button, ButtonEmphaze, ThemeContext } from '@autoschedule/react-element
 import { css } from 'emotion';
 import * as React from 'react';
 import { DateStep, Pagination } from '../elements/pagination';
-import { AppContext } from '../root';
+import { AppContext, RoleKey, unassignedRole } from '../root';
 import { deleteFromList, mergeProps, partitionList } from '../utils/utils';
 import { ChunkAdd } from './chunk-add';
 import { ChunkEdit } from './chunk-edit';
@@ -18,7 +18,7 @@ const rootClass = (theme: any) => ({
 export interface BaseChunk {
   start: number;
   end: number;
-  role: string;
+  role: RoleKey;
   label?: string;
 }
 
@@ -95,7 +95,7 @@ const createVirtualChunks = (offset: number): VirtualChunk[] => {
     id: undefined,
     end: pattern.end * length + start,
     start: pattern.start * length + start,
-    role: 'Unassigned',
+    role: unassignedRole.key,
     label: pattern.label,
   }));
 };

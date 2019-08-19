@@ -5,7 +5,15 @@ import { TrackNMonitor } from './track-n-monitor';
 import { deleteFromList, mergeProps } from './utils/utils';
 
 interface AppState {
-  chunks: ReadonlyArray<Chunk>;
+  readonly chunks: ReadonlyArray<Chunk>;
+  readonly roles: ReadonlyArray<Role>;
+}
+
+export type RoleKey = number;
+
+export interface Role {
+  readonly key: RoleKey;
+  readonly label: string;
 }
 
 export type actionType = AddChunks | EditChunk | DeleteChunk;
@@ -32,34 +40,45 @@ interface AppContext {
 
 export const AppContext = React.createContext<AppContext>({} as AppContext);
 
-const defaultChunks: ReadonlyArray<Chunk> = [
-  {
-    start: 0,
-    end: 1,
-    role: 'Unassigned',
-    id: '000',
-  },
-];
+export const unassignedRole: Role = {
+  key: -1,
+  label: 'Unassigned'
+};
 
-const localStorageKey = 'chunks';
+const defaultAppstate: AppState ={
+  chunks: [
+    {
+      start: 0,
+      end: 1,
+      role: unassignedRole.key,
+      id: '000',
+    },
+  ],
+  roles: [
+    unassignedRole
+  ]
+};
 
-const parseLocalChunks = (localChunksRaw: string) => {
-  let localChunks = [];
+const localStorageKey = 'appState';
+
+const parseLocalAppState = (localAppStateRaw: string) => {
+  let localAppState: AppState = {
+    chunks: [],
+    roles: []
+  };
   try {
-    localChunks = JSON.parse(localChunksRaw || '[]');
+    localAppState = JSON.parse(localAppStateRaw);
   } catch (e) {
     localStorage.removeItem(localStorageKey);
-    console.error('Local chunks corrupted', localChunksRaw, e);
+    console.error('Local chunks corrupted', localAppStateRaw, e);
   }
-  return localChunks;
+  return localAppState;
 };
 
 const retrieveState = (): AppState => {
-  const localChunksRaw = localStorage.getItem(localStorageKey);
-  const chunks = localChunksRaw ? parseLocalChunks(localChunksRaw) : defaultChunks;
-  return {
-    chunks,
-  };
+  const localAppRaw = localStorage.getItem(localStorageKey);
+  const appState = localAppRaw ? parseLocalAppState(localAppRaw) : defaultAppstate;
+  return appState;
 };
 
 const saveState = (state: AppState) => () => {

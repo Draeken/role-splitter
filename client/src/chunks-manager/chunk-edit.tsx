@@ -89,12 +89,3 @@ const callbackBuilder = (
   }
   appDispatch({ type: 'edit', chunk: { ...chunk, [prop]: val } });
 };
-
-/**
- * TOFIX:
- *
- *  - [x] Change the textInput by a time (hour/minute) input
- *  - [x] When deleting virtual chunk, it does nothing
- *  - [x] When editing virtual chunk, it deletes all next virtual chunks
- *
- */
