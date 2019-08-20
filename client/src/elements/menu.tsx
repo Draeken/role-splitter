@@ -8,7 +8,7 @@ export interface DropdownMenuProps {
   label: string;
   value: any;
   onNewVal: (v: number) => void;
-  values: Array<{ key: any; value: string }>;
+  readonly values: ReadonlyArray<{ readonly key: any; readonly label: string }>;
 }
 
 export const DropdownMenu: React.FunctionComponent<
@@ -24,15 +24,14 @@ export const DropdownMenu: React.FunctionComponent<
     },
     defaultHostProps
   );
-  const pos =
-    inputRef.current === null
-      ? { x: 100, y: 100 }
-      : { x: (inputRef.current as any).offsetLeft, y: (inputRef.current as any).offsetTop + 60 };
+  inputRef.current === null
+    ? { x: 100, y: 100 }
+    : { x: (inputRef.current as any).offsetLeft, y: (inputRef.current as any).offsetTop + 60 };
   const menuProps = mergeProps({
     position: pos,
     items: values.map(obj => (
       <p onClick={() => onNewVal(obj.key)}>
-        {obj.key} - {obj.value}
+        {obj.key} - {obj.label}
       </p>
     )),
   });
@@ -42,6 +41,66 @@ export const DropdownMenu: React.FunctionComponent<
       {displayDropdown && <Menu {...menuProps} />}
     </React.Fragment>
   );
+};
+
+export const DropdownMenuWithCreate: React.FunctionComponent<
+  DropdownMenuProps & React.HTMLAttributes<HTMLDivElement>
+> = props => {
+  const { onNewVal, values, value, ...defaultHostProps } = props;
+  const [displayDropdown, setDisplayDropdown] = React.useState(false);
+  const [displayedValues, setDisplayedValues] = React.useState(values);
+  const label = getLabelFromValues(values, value);
+  const [userInputVal, setUserInputVal] = React.useState(label);
+  React.useEffect(() => {
+    if (userInputVal === label) {
+      setDisplayedValues(values.filter(vals => vals.key !== value));
+    }
+    setDisplayedValues(values.filter(vals => vals.key !== value && vals.label.startsWith(userInputVal)));
+  }, [values, userInputVal]);
+  React.useEffect(() => {
+    setUserInputVal(label);
+  }, [label]);
+  const inputRef = React.useRef(null);
+  const inputProps = mergeProps(
+    {
+      onNewVal: e => {
+        setUserInputVal(e);
+      },
+      onClick: () => {
+        if (!displayDropdown) {
+          setDisplayDropdown(true);
+          setUserInputVal('');
+        }
+      },
+      onUnfocus: () => {
+        if (displayDropdown) {
+          setDisplayDropdown(false);
+          setUserInputVal(label);
+        }
+      },
+      value: userInputVal,
+    },
+    defaultHostProps
+  );
+  const pos =
+    inputRef.current === null
+      ? { x: 100, y: 100 }
+      : { x: (inputRef.current as any).offsetLeft, y: (inputRef.current as any).offsetTop + 60 };
+  const menuProps = mergeProps({
+    position: pos,
+    items: displayedValues.map(obj => <p onClick={() => onNewVal(obj.key)}>{obj.label}</p>),
+  });
+  return (
+    <React.Fragment>
+      <TextInput {...inputProps} ref={inputRef} />
+      {displayDropdown && <Menu {...menuProps} />}
+    </React.Fragment>
+  );
+};
+
+const getLabelFromValues = (values: ReadonlyArray<{ key: any; label: string }>, key: any) => {
+  const findVal = values.find(val => val.key === key);
+  return findVal ? findVal.label : key;
 };
 
 export interface MenuProps {

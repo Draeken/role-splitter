@@ -1,10 +1,10 @@
 import { ThemeContext, Typography } from '@autoschedule/react-elements';
 import { css } from 'emotion';
 import * as React from 'react';
-import { DropdownMenu } from '../elements/menu';
+import { DropdownMenuWithCreate } from '../elements/menu';
 import { goldenNumber } from '../layout/base-layout';
 import { CardProps } from '../layout/card';
-import { AppContext } from '../root';
+import { AppContext, Role, RoleKey } from '../root';
 import { mergeProps } from '../utils/utils';
 import { virtualChunkToConcrete } from './chunk-add';
 import { Chunk, VirtualChunk } from './chunks-manager';
@@ -37,7 +37,7 @@ export const ChunkView: React.FunctionComponent<
 > = props => {
   const { chunk, siblingChunks, ...defaultHostProps } = props;
   const theme = React.useContext(ThemeContext);
-  const { appDispatch } = React.useContext(AppContext);
+  const { appDispatch, appState } = React.useContext(AppContext);
   const start = React.useMemo(() => timestampToTime(chunk.start), [chunk.start]);
   const end = React.useMemo(() => timestampToTime(chunk.end), [chunk.end]);
   const hostProps = mergeProps(
@@ -48,7 +48,7 @@ export const ChunkView: React.FunctionComponent<
   const dropdownProps = {
     label: 'Role',
     value: chunk.role,
-    values: [{ key: 'undefined', value: 'UNDEFINED' }, { key: 'env', value: 'Environment' }],
+    values: appState.roles,
     onNewVal: key => {
       if (chunk.id === undefined) {
         appDispatch({
@@ -63,13 +63,19 @@ export const ChunkView: React.FunctionComponent<
       appDispatch({ type: 'edit', chunk: { ...chunk, role: key } });
     },
   };
+  const getLabel = getRoleLabel(appState.roles);
   return (
     <div {...hostProps}>
-      <DropdownMenu {...dropdownProps}>{chunk.role}</DropdownMenu>
+      <DropdownMenuWithCreate {...dropdownProps}>{getLabel(chunk.role)}</DropdownMenuWithCreate>
       <Typography baselineTop={16} scale={'Overline'}>
         [{start} - {end}]
       </Typography>
       <Typography scale={'Caption'}>{chunk.label}</Typography>
     </div>
   );
+};
+
+const getRoleLabel = (roles: ReadonlyArray<Role>) => (roleId: RoleKey) => {
+  const res = roles.find(role => role.key === roleId);
+  return res ? res.label : roleId;
 };
