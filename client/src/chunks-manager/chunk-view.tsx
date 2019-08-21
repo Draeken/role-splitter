@@ -1,10 +1,10 @@
 import { ThemeContext, Typography } from '@autoschedule/react-elements';
 import { css } from 'emotion';
 import * as React from 'react';
-import { DropdownMenuWithCreate } from '../elements/menu';
+import { DropdownMenuWithCreate, MenuWithCreate } from '../elements/menu';
 import { goldenNumber } from '../layout/base-layout';
 import { CardProps } from '../layout/card';
-import { AppContext, Role, RoleKey } from '../root';
+import { actionType, AppContext, Role, RoleKey } from '../root';
 import { mergeProps } from '../utils/utils';
 import { virtualChunkToConcrete } from './chunk-add';
 import { Chunk, VirtualChunk } from './chunks-manager';
@@ -45,23 +45,17 @@ export const ChunkView: React.FunctionComponent<
     ChunkViewRootClass,
     defaultHostProps
   );
-  const dropdownProps = {
+  const onNewVal = React.useMemo(() => onNewValFn(chunk, appDispatch, siblingChunks), [
+    chunk,
+    siblingChunks,
+  ]);
+  const dropdownProps: MenuWithCreate = {
     label: 'Role',
     value: chunk.role,
     values: appState.roles,
-    onNewVal: key => {
-      if (chunk.id === undefined) {
-        appDispatch({
-          type: 'add',
-          chunks: [
-            ...siblingChunks.map(virtualChunkToConcrete),
-            { ...virtualChunkToConcrete(chunk), role: key },
-          ],
-        });
-        return;
-      }
-      appDispatch({ type: 'edit', chunk: { ...chunk, role: key } });
-    },
+    onNewVal,
+    onCreateVal: onNewVal,
+    labelForCreation: str => `+ create new role: ${str}`,
   };
   const getLabel = getRoleLabel(appState.roles);
   return (
@@ -73,6 +67,24 @@ export const ChunkView: React.FunctionComponent<
       <Typography scale={'Caption'}>{chunk.label}</Typography>
     </div>
   );
+};
+
+const onNewValFn = (
+  chunk: Chunk | VirtualChunk,
+  appDispatch: React.Dispatch<actionType>,
+  siblingChunks: ReadonlyArray<VirtualChunk>
+) => (key: any) => {
+  if (chunk.id === undefined) {
+    appDispatch({
+      type: 'add',
+      chunks: [
+        ...siblingChunks.map(virtualChunkToConcrete),
+        { ...virtualChunkToConcrete(chunk), role: key },
+      ],
+    });
+    return;
+  }
+  appDispatch({ type: 'edit', chunk: { ...chunk, role: key } });
 };
 
 const getRoleLabel = (roles: ReadonlyArray<Role>) => (roleId: RoleKey) => {

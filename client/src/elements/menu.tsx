@@ -24,7 +24,7 @@ export const DropdownMenu: React.FunctionComponent<
     },
     defaultHostProps
   );
-  inputRef.current === null
+  const pos = inputRef.current === null
     ? { x: 100, y: 100 }
     : { x: (inputRef.current as any).offsetLeft, y: (inputRef.current as any).offsetTop + 60 };
   const menuProps = mergeProps({
@@ -43,14 +43,20 @@ export const DropdownMenu: React.FunctionComponent<
   );
 };
 
+export interface MenuWithCreate extends DropdownMenuProps {
+  onCreateVal: (val: string) => void;
+  labelForCreation: (input: string) => string;
+}
+
 export const DropdownMenuWithCreate: React.FunctionComponent<
-  DropdownMenuProps & React.HTMLAttributes<HTMLDivElement>
+  MenuWithCreate & React.HTMLAttributes<HTMLDivElement>
 > = props => {
-  const { onNewVal, values, value, ...defaultHostProps } = props;
+  const { onNewVal, values, value, onCreateVal, labelForCreation, ...defaultHostProps } = props;
   const [displayDropdown, setDisplayDropdown] = React.useState(false);
   const [displayedValues, setDisplayedValues] = React.useState(values);
   const label = getLabelFromValues(values, value);
   const [userInputVal, setUserInputVal] = React.useState(label);
+  const [bluredElements, setBluredElements] = React.useState({ input: true, menu: true });
   React.useEffect(() => {
     if (userInputVal === label) {
       setDisplayedValues(values.filter(vals => vals.key !== value));
@@ -60,6 +66,18 @@ export const DropdownMenuWithCreate: React.FunctionComponent<
   React.useEffect(() => {
     setUserInputVal(label);
   }, [label]);
+
+  const checkFocus = () => {
+    console.log('bluredElems - afterTimeout', bluredElements);
+    if (bluredElements.input && bluredElements.menu && displayDropdown) {
+      setDisplayDropdown(false);
+      setUserInputVal(label);
+    }
+  }
+  React.useEffect(() => {
+    console.log('bluredElems - beforeTimeout', bluredElements);
+    setTimeout(() => checkFocus(), 1000);
+  }, [bluredElements]);
   const inputRef = React.useRef(null);
   const inputProps = mergeProps(
     {
@@ -73,16 +91,14 @@ export const DropdownMenuWithCreate: React.FunctionComponent<
         }
       },
       onFocus: () => {
+        setBluredElements({...bluredElements, input: false })
         if (!displayDropdown) {
           setDisplayDropdown(true);
           setUserInputVal('');
         }
       },
       onBlur: () => {
-        if (displayDropdown) {
-          setDisplayDropdown(false);
-          setUserInputVal(label);
-        }
+        setBluredElements({...bluredElements, input: true })
       },
       value: userInputVal,
     },
@@ -92,9 +108,17 @@ export const DropdownMenuWithCreate: React.FunctionComponent<
     inputRef.current === null
       ? { x: 100, y: 100 }
       : { x: (inputRef.current as any).offsetLeft, y: (inputRef.current as any).offsetTop + 60 };
+  const roleItems = React.useMemo(() => displayedValues.map(obj => <p onClick={() => onNewVal(obj.key)}>{obj.label}</p>), [displayedValues]);
+  const newRoleItems = React.useMemo(() =>
+    userInputVal.length === 0 || values.find(val => val.label === userInputVal)
+      ? []
+      : [<p onClick={() => onCreateVal(userInputVal)}>{labelForCreation(userInputVal)}</p>]
+    , [userInputVal, values]);
   const menuProps = mergeProps({
     position: pos,
-    items: displayedValues.map(obj => <p onClick={() => onNewVal(obj.key)}>{obj.label}</p>),
+    items: [...roleItems, ...newRoleItems],
+    onFocus: () => setBluredElements({...bluredElements, menu: false }),
+    onBlur: () => setBluredElements({...bluredElements, menu: true }),
   });
   return (
     <React.Fragment>
@@ -106,7 +130,7 @@ export const DropdownMenuWithCreate: React.FunctionComponent<
 
 const getLabelFromValues = (values: ReadonlyArray<{ key: any; label: string }>, key: any) => {
   const findVal = values.find(val => val.key === key);
-  return findVal ? findVal.label : key;
+  return findVal ? findVal.label : '' +key;
 };
 
 export interface MenuProps {
@@ -134,7 +158,7 @@ export const Menu: React.FunctionComponent<
   );
   return (
     <Modal>
-      <div {...hostProps}>{items}</div>
+      <div tabIndex={0} {...hostProps}>{items}</div>
     </Modal>
   );
 };

@@ -2,14 +2,14 @@ import * as React from 'react';
 import { Chunk } from './chunks-manager/chunks-manager';
 import { BaseLayoutProps } from './layout/base-layout';
 import { TrackNMonitor } from './track-n-monitor';
-import { deleteFromList, mergeProps } from './utils/utils';
+import { deleteFromList, idGeneratorFn, mergeProps } from './utils/utils';
 
 interface AppState {
   readonly chunks: ReadonlyArray<Chunk>;
   readonly roles: ReadonlyArray<Role>;
 }
 
-export type RoleKey = number;
+export type RoleKey = number | string;
 
 export interface Role {
   readonly key: RoleKey;
@@ -42,10 +42,10 @@ export const AppContext = React.createContext<AppContext>({} as AppContext);
 
 export const unassignedRole: Role = {
   key: -1,
-  label: 'Unassigned'
+  label: 'Unassigned',
 };
 
-const defaultAppstate: AppState ={
+const defaultAppstate: AppState = {
   chunks: [
     {
       start: 0,
@@ -54,9 +54,7 @@ const defaultAppstate: AppState ={
       id: '000',
     },
   ],
-  roles: [
-    unassignedRole
-  ]
+  roles: [unassignedRole],
 };
 
 const localStorageKey = 'appState';
@@ -64,7 +62,7 @@ const localStorageKey = 'appState';
 const parseLocalAppState = (localAppStateRaw: string) => {
   let localAppState: AppState = {
     chunks: [],
-    roles: []
+    roles: [],
   };
   try {
     localAppState = JSON.parse(localAppStateRaw);
@@ -87,15 +85,53 @@ const saveState = (state: AppState) => () => {
   console.log('state saved');
 };
 
+const roleIdGen = idGeneratorFn('role');
+
+const checkForNewRoles = (chunks: ReadonlyArray<Chunk>, roles: ReadonlyArray<Role>) => {
+  return chunks.reduce((acc: Role[], chunk) => {
+    // Issue if user add a new role === to an existing key
+    if (roles.some(role => role.key === chunk.role)) {
+      return acc;
+    }
+    return [...acc, { label: '' + chunk.role, key: roleIdGen.next().value }];
+  }, []);
+};
+
+const handleAddChunks = (state: AppState, action: AddChunks): AppState => {
+  const newRoles = checkForNewRoles(action.chunks, state.roles);
+  return {
+    ...state,
+    chunks: [...state.chunks, ...action.chunks],
+    roles: [...state.roles, ...newRoles],
+  };
+};
+
+const handleEditChunk = (state: AppState, action: EditChunk): AppState => {
+  const newRoles = checkForNewRoles([action.chunk], state.roles);
+  return {
+    ...state,
+    chunks: state.chunks.map(chunk => (chunk.id === action.chunk.id ? action.chunk : chunk)),
+    roles: [...state.roles, ...newRoles],
+  };
+};
+/**
+   *
+const handleRemoveChunk = (state: AppState, action: EditChunk): AppState => {
+  create a counter on role usage? Avoid scanning whole chunk base
+  const remainingRoles =
+   {
+        ...state,
+        chunks: deleteFromList<Chunk>(c => c.id === action.chunkId)(state.chunks),
+      };
+
+}*/
+
 const reducer = (state: AppState, action: actionType) => {
   switch (action.type) {
     case 'add':
-      return { ...state, chunks: [...state.chunks, ...action.chunks] };
+      return handleAddChunks(state, action);
     case 'edit':
-      return {
-        ...state,
-        chunks: state.chunks.map(chunk => (chunk.id === action.chunk.id ? action.chunk : chunk)),
-      };
+      return handleEditChunk(state, action);
     case 'delete':
       return {
         ...state,
