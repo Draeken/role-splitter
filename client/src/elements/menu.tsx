@@ -72,7 +72,13 @@ export const DropdownMenuWithCreate: React.FunctionComponent<
           setUserInputVal('');
         }
       },
-      onUnfocus: () => {
+      onFocus: () => {
+        if (!displayDropdown) {
+          setDisplayDropdown(true);
+          setUserInputVal('');
+        }
+      },
+      onBlur: () => {
         if (displayDropdown) {
           setDisplayDropdown(false);
           setUserInputVal(label);
