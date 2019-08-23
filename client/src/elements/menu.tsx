@@ -4,6 +4,13 @@ import * as React from 'react';
 import { CardProps } from '../layout/card';
 import { mergeProps } from '../utils/utils';
 
+/**
+ * Dropdown menu
+ * DM with search bar filtering result
+ * DM with search bar & create if it doesn't exist
+ *
+ */
+
 export interface DropdownMenuProps {
   label: string;
   value: any;
@@ -24,9 +31,10 @@ export const DropdownMenu: React.FunctionComponent<
     },
     defaultHostProps
   );
-  const pos = inputRef.current === null
-    ? { x: 100, y: 100 }
-    : { x: (inputRef.current as any).offsetLeft, y: (inputRef.current as any).offsetTop + 60 };
+  const pos =
+    inputRef.current === null
+      ? { x: 100, y: 100 }
+      : { x: (inputRef.current as any).offsetLeft, y: (inputRef.current as any).offsetTop + 60 };
   const menuProps = mergeProps({
     position: pos,
     items: values.map(obj => (
@@ -53,31 +61,40 @@ export const DropdownMenuWithCreate: React.FunctionComponent<
 > = props => {
   const { onNewVal, values, value, onCreateVal, labelForCreation, ...defaultHostProps } = props;
   const [displayDropdown, setDisplayDropdown] = React.useState(false);
-  const [displayedValues, setDisplayedValues] = React.useState(values);
-  const label = getLabelFromValues(values, value);
+  const label = React.useMemo(() => getLabelFromValues(values, value), [values, value]);
   const [userInputVal, setUserInputVal] = React.useState(label);
-  const [bluredElements, setBluredElements] = React.useState({ input: true, menu: true });
-  React.useEffect(() => {
-    if (userInputVal === label) {
-      setDisplayedValues(values.filter(vals => vals.key !== value));
+  const [isActive, setIsActive] = React.useState<false | string>(false);
+
+  const displayedValues = React.useMemo(() => {
+    if (userInputVal === label || !userInputVal.length) {
+      return values.filter(vals => vals.key !== value);
     }
-    setDisplayedValues(values.filter(vals => vals.key !== value && vals.label.startsWith(userInputVal)));
-  }, [values, userInputVal]);
+    return (
+      values.filter(vals => vals.key !== value && vals.label.startsWith(userInputVal))
+    );
+  }, [values, userInputVal, label]);
+
   React.useEffect(() => {
     setUserInputVal(label);
   }, [label]);
 
-  const checkFocus = () => {
-    console.log('bluredElems - afterTimeout', bluredElements);
-    if (bluredElements.input && bluredElements.menu && displayDropdown) {
+  React.useEffect(() => {
+    if (isActive === 'focus') {
+      setTimeout(() => {
+        setIsActive('timeout');
+      }, 100); // prevent focus & click to occurs in the same time
+    }
+  }, [isActive]);
+
+  React.useEffect(() => {
+    if (isActive && !displayDropdown) {
+      setDisplayDropdown(true);
+      setUserInputVal('');
+    } else if (!isActive && displayDropdown) {
       setDisplayDropdown(false);
       setUserInputVal(label);
     }
-  }
-  React.useEffect(() => {
-    console.log('bluredElems - beforeTimeout', bluredElements);
-    setTimeout(() => checkFocus(), 1000);
-  }, [bluredElements]);
+  }, [isActive]);
   const inputRef = React.useRef(null);
   const inputProps = mergeProps(
     {
@@ -85,20 +102,17 @@ export const DropdownMenuWithCreate: React.FunctionComponent<
         setUserInputVal(e);
       },
       onClick: () => {
-        if (!displayDropdown) {
-          setDisplayDropdown(true);
-          setUserInputVal('');
+        if (!isActive) {
+          setIsActive('click');
+        } else if (isActive !== 'focus') {
+          setIsActive(false);
         }
       },
       onFocus: () => {
-        setBluredElements({...bluredElements, input: false })
-        if (!displayDropdown) {
-          setDisplayDropdown(true);
-          setUserInputVal('');
-        }
+        setIsActive('focus');
       },
       onBlur: () => {
-        setBluredElements({...bluredElements, input: true })
+        setIsActive(false);
       },
       value: userInputVal,
     },
@@ -108,17 +122,20 @@ export const DropdownMenuWithCreate: React.FunctionComponent<
     inputRef.current === null
       ? { x: 100, y: 100 }
       : { x: (inputRef.current as any).offsetLeft, y: (inputRef.current as any).offsetTop + 60 };
-  const roleItems = React.useMemo(() => displayedValues.map(obj => <p onClick={() => onNewVal(obj.key)}>{obj.label}</p>), [displayedValues]);
-  const newRoleItems = React.useMemo(() =>
-    userInputVal.length === 0 || values.find(val => val.label === userInputVal)
-      ? []
-      : [<p onClick={() => onCreateVal(userInputVal)}>{labelForCreation(userInputVal)}</p>]
-    , [userInputVal, values]);
+  const roleItems = React.useMemo(
+    () => displayedValues.map(obj => <p onMouseDown={() => onNewVal(obj.key)}>{obj.label}</p>),
+    [displayedValues]
+  );
+  const newRoleItems = React.useMemo(
+    () =>
+      userInputVal.length === 0 || values.find(val => val.label === userInputVal)
+        ? []
+        : [<p onMouseDown={() => onCreateVal(userInputVal)}>{labelForCreation(userInputVal)}</p>],
+    [userInputVal, values]
+  );
   const menuProps = mergeProps({
     position: pos,
     items: [...roleItems, ...newRoleItems],
-    onFocus: () => setBluredElements({...bluredElements, menu: false }),
-    onBlur: () => setBluredElements({...bluredElements, menu: true }),
   });
   return (
     <React.Fragment>
@@ -130,7 +147,7 @@ export const DropdownMenuWithCreate: React.FunctionComponent<
 
 const getLabelFromValues = (values: ReadonlyArray<{ key: any; label: string }>, key: any) => {
   const findVal = values.find(val => val.key === key);
-  return findVal ? findVal.label : '' +key;
+  return findVal ? findVal.label : '' + key;
 };
 
 export interface MenuProps {
@@ -158,7 +175,9 @@ export const Menu: React.FunctionComponent<
   );
   return (
     <Modal>
-      <div tabIndex={0} {...hostProps}>{items}</div>
+      <div tabIndex={0} {...hostProps}>
+        {items}
+      </div>
     </Modal>
   );
 };

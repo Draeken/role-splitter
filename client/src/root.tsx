@@ -87,30 +87,41 @@ const saveState = (state: AppState) => () => {
 
 const roleIdGen = idGeneratorFn('role');
 
-const checkForNewRoles = (chunks: ReadonlyArray<Chunk>, roles: ReadonlyArray<Role>) => {
-  return chunks.reduce((acc: Role[], chunk) => {
-    // Issue if user add a new role === to an existing key
-    if (roles.some(role => role.key === chunk.role)) {
-      return acc;
-    }
-    return [...acc, { label: '' + chunk.role, key: roleIdGen.next().value }];
-  }, []);
+const checkForNewRoles = (
+  chunks: ReadonlyArray<Chunk>,
+  roles: ReadonlyArray<Role>
+): [Role[], Chunk[]] => {
+  const chunksWithRoleKey: Chunk[] = [];
+  return [
+    chunks.reduce((acc: Role[], chunk) => {
+      // Issue if user add a new role === to an existing key
+      if (roles.some(role => role.key === chunk.role)) {
+        chunksWithRoleKey.push(chunk);
+        return acc;
+      }
+      const roleKey = roleIdGen.next().value;
+      chunksWithRoleKey.push({ ...chunk, role: roleKey });
+      return [...acc, { label: '' + chunk.role, key: roleKey }];
+    }, []),
+    chunksWithRoleKey,
+  ];
 };
 
 const handleAddChunks = (state: AppState, action: AddChunks): AppState => {
-  const newRoles = checkForNewRoles(action.chunks, state.roles);
+  const [newRoles, chunks] = checkForNewRoles(action.chunks, state.roles);
   return {
     ...state,
-    chunks: [...state.chunks, ...action.chunks],
+    chunks: [...state.chunks, ...chunks],
     roles: [...state.roles, ...newRoles],
   };
 };
 
 const handleEditChunk = (state: AppState, action: EditChunk): AppState => {
-  const newRoles = checkForNewRoles([action.chunk], state.roles);
+  const [newRoles, chunks] = checkForNewRoles([action.chunk], state.roles);
+  const targetChunk = chunks[0];
   return {
     ...state,
-    chunks: state.chunks.map(chunk => (chunk.id === action.chunk.id ? action.chunk : chunk)),
+    chunks: state.chunks.map(chunk => (chunk.id === targetChunk.id ? targetChunk : chunk)),
     roles: [...state.roles, ...newRoles],
   };
 };
