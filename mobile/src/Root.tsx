@@ -1,5 +1,5 @@
 import React from 'react';
-import { useAsyncReducer } from '../lib/use-async-reducer.hook';
+import { useAsyncReducer } from './lib/use-async-reducer.hook';
 import { AppStateContext, appReducer } from './app-state/app-state';
 
 const Root = () => {
