@@ -1,12 +1,7 @@
 import { createContext, Dispatch } from 'react';
+import { Action, ActionURLChanged } from './actions';
 
 export interface AppState {}
-
-type Action = ActionURLChanged;
-
-export class ActionURLChanged {
-  constructor(public newURL: string) {}
-}
 
 export const AppStateContext = createContext<{
   state: AppState;
