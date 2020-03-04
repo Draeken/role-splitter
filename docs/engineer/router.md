@@ -8,3 +8,7 @@ It may be compsed of :
 
 Should the router be integrated to app state or have its own store?
 Protected routes needs user status.
+Router state is composed of:
+- current route
+- route history for breadcrumb
+this embedde generic logic. Guard or protected route logic shouldn't be in the reducer, but in the switch, or from a server's response
