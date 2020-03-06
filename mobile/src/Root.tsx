@@ -5,6 +5,7 @@ import { appReducer, AppStateContext } from './states/app-state';
 import { RouterActionURLChanged } from './states/router-actions';
 import { routerReducer, RouterStateContext } from './states/router-state';
 import { themeReducer, ThemeStateContext } from './states/theme-state';
+import AppComponent from './app-component';
 
 const Root = () => {
   const appContextValue = useAsyncReducer(appReducer, {});
@@ -16,7 +17,9 @@ const Root = () => {
   return (
     <AppStateContext.Provider value={appContextValue}>
       <RouterStateContext.Provider value={routerContextValue}>
-        <ThemeStateContext.Provider value={themeContextValue}></ThemeStateContext.Provider>
+        <ThemeStateContext.Provider value={themeContextValue}>
+          <AppComponent />
+        </ThemeStateContext.Provider>
       </RouterStateContext.Provider>
     </AppStateContext.Provider>
   );
