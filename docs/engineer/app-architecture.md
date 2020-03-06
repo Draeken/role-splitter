@@ -10,9 +10,9 @@ put text on separate files
 Use default components/widgets for forms
 
 # Root Component
-Provide App state & dispatcher
+Provide App/Router/Theme state & dispatcher
 URL event listener that trigger action
-Provide theme (which depends on AppState's user theme)
+Listen for states and save/sync
 
 # App Component
 Invoke AppBar, BottomBar , components

@@ -1,11 +1,11 @@
 import { createContext, Dispatch } from 'react';
-import { Action, ActionURLChanged } from './actions';
+import { AppAction } from './app-actions';
 
 export interface AppState {}
 
 export const AppStateContext = createContext<{
   state: AppState;
-  dispatch: Dispatch<Action>;
+  dispatch: Dispatch<AppAction>;
 }>({
   state: {},
   dispatch: () => {},
@@ -13,10 +13,10 @@ export const AppStateContext = createContext<{
 
 export const appReducer = (
   state: AppState,
-  action: Action,
-  dispatch: (action: Action) => void
+  action: AppAction,
+  _dispatch: (action: AppAction) => void
 ): AppState => {
-  if (action instanceof ActionURLChanged) {
+  if (action) {
     return state;
   }
   return state;

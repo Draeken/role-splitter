@@ -1,14 +1,25 @@
 import React from 'react';
 import { useAsyncReducer } from './lib/use-async-reducer.hook';
-import { AppStateContext, appReducer } from './app-state/app-state';
 import { useLocationListener } from './lib/use-location-listener.hook';
-import { ActionURLChanged } from './app-state/actions';
+import { appReducer, AppStateContext } from './states/app-state';
+import { RouterActionURLChanged } from './states/router-actions';
+import { routerReducer, RouterStateContext } from './states/router-state';
+import { themeReducer, ThemeStateContext } from './states/theme-state';
 
 const Root = () => {
   const appContextValue = useAsyncReducer(appReducer, {});
-  useLocationListener(path => appContextValue.dispatch(new ActionURLChanged(path)));
+  const routerContextValue = useAsyncReducer(routerReducer, {});
+  const themeContextValue = useAsyncReducer(themeReducer, {});
 
-  return <AppStateContext.Provider value={appContextValue}></AppStateContext.Provider>;
+  useLocationListener(path => routerContextValue.dispatch(new RouterActionURLChanged(path)));
+
+  return (
+    <AppStateContext.Provider value={appContextValue}>
+      <RouterStateContext.Provider value={routerContextValue}>
+        <ThemeStateContext.Provider value={themeContextValue}></ThemeStateContext.Provider>
+      </RouterStateContext.Provider>
+    </AppStateContext.Provider>
+  );
 };
 
 export default Root;

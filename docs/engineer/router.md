@@ -12,3 +12,4 @@ Router state is composed of:
 - current route
 - route history for breadcrumb
 this embedde generic logic. Guard or protected route logic shouldn't be in the reducer, but in the switch, or from a server's response
+url changed -> trigger action to update router state -> trigger render -> switch retrieve components from component graph; if main component has a guard preventing him to be displayed, redirect to login/signup form (push history, so that after completion, it can redirect to previous router state). Assistive component could be hidden due to guard, when main component is permitted. Routes aren't guarded, only components are.
