@@ -1,6 +1,6 @@
 
 url event trigger an action, the reducer can cancel (guard/error) or commit navigation.
-If user change the url, it reloads the app, then the app catch the current url and could trigger an action (fromUrl: true). If the user wants to navigate through the app, it uses a special handler (not a <a>) that use Web History API to push state or prevent/guard
+If user change the url, it reloads the app, then the app catch the current url and could trigger an action (fromUrl: true). If the user wants to navigate through the app, it uses a special handler (not a `<a>`) that use Web History API to push state or prevent/guard
 
 It may be compsed of :
 - a location listener that trigger action (handle URL direct change)
@@ -13,3 +13,12 @@ Router state is composed of:
 - route history for breadcrumb
 this embedde generic logic. Guard or protected route logic shouldn't be in the reducer, but in the switch, or from a server's response
 url changed -> trigger action to update router state -> trigger render -> switch retrieve components from component graph; if main component has a guard preventing him to be displayed, redirect to login/signup form (push history, so that after completion, it can redirect to previous router state). Assistive component could be hidden due to guard, when main component is permitted. Routes aren't guarded, only components are.
+
+If we use a recursive schema : each component has a list of primary & secondary components, it means that:
+steam store list of primary component are ~~the games ?~~ or **the category** (best sales, trending, for you, played by your friend, ...) ?
+
+It's a better idea to have category as primary component for a store because they could be focused, and each category manage what kind of game have to be displayed. Also, the store give the component a list of primary component. All in the same bag. It may be cumbersome to categorize / differentiate them afterward.
+
+The host component has the responsibility to display its children components in its own way (it could be placed in placeholder area). If we are consistent with the way that "root" component display its primary & secondary children, assistive components should be displayed within the boundaries of the primary component. So in a physic-based auto-layout, how the layout is computed?
+
+if it's the game and filter / pagination change, it updates the component graph which cause a re-render?

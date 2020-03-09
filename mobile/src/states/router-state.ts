@@ -1,13 +1,15 @@
 import { createContext, Dispatch } from 'react';
 import { RouterAction, RouterActionURLChanged } from './router-actions';
 
-export interface RouterState {}
+export interface RouterState {
+  focus: string;
+}
 
 export const RouterStateContext = createContext<{
   state: RouterState;
   dispatch: Dispatch<RouterAction>;
 }>({
-  state: {},
+  state: { focus: 'root' },
   dispatch: () => {},
 });
 
