@@ -22,3 +22,12 @@ It's a better idea to have category as primary component for a store because the
 The host component has the responsibility to display its children components in its own way (it could be placed in placeholder area). If we are consistent with the way that "root" component display its primary & secondary children, assistive components should be displayed within the boundaries of the primary component. So in a physic-based auto-layout, how the layout is computed?
 
 if it's the game and filter / pagination change, it updates the component graph which cause a re-render?
+How is graph is generated? If it's only a view of what is displayable?
+root -> graph -> main comp & primary for each of the main comp
+focus on A : root -> A -> primary & secondary of A (discard other main)
+but if there is still room for other main comp to be displayed: root -> [A, B, C] -> primary & secondary of A, primary of B & C
+This is the current, in-use graph of components, used by canvas component to layout the app.
+Actions that mutate this graph are:
+- focus change -> router
+- app state change like: (eg: user is authentified) -> app state
+- local change: (eg: filter, pagination, sort) -> should only trigger a layout re-render for the change's author.
